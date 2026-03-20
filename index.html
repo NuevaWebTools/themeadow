@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Meadow</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-brand">
+      <span>The Meadow</span>
+    </div>
+
+    <div class="header-datetime" id="headerDatetime"></div>
+
+    <div class="header-actions">
+      <button class="btn" id="editWidgetsBtn" type="button">Edit Widgets</button>
+    </div>
+  </header>
+
+  <!-- Draggable canvas -->
+  <main class="canvas" id="canvas">
+
+
+    <!-- Links widget -->
+    <div class="widget widget-links" data-widget-id="links" style="left:60px;top:280px;">
+      <div class="widget-header">
+        <span class="widget-title">Quick Links</span>
+      </div>
+      <div class="widget-body">
+        <ul class="link-list" id="quickLinksList"></ul>
+      </div>
+    </div>
+
+    <!-- Add Quick Link Modal -->
+    <div class="modal-overlay" id="addLinkModal">
+      <div class="modal">
+        <div class="modal-header">
+          <span class="modal-title">Add Quick Link</span>
+          <button class="modal-close" id="addLinkModalClose">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="modal-section-label">Quick Add</div>
+          <div class="preset-links" id="presetLinks"></div>
+          <div class="modal-divider"></div>
+          <div class="modal-section-label">Custom Link</div>
+          <label class="modal-label" for="linkNameInput">Name</label>
+          <input class="modal-input" id="linkNameInput" type="text" placeholder="e.g. Clever" />
+          <label class="modal-label" for="linkUrlInput">URL</label>
+          <input class="modal-input" id="linkUrlInput" type="url" placeholder="https://clever.com" />
+        </div>
+        <div class="modal-footer">
+          <button class="modal-btn modal-btn--cancel" id="addLinkCancel">Cancel</button>
+          <button class="modal-btn modal-btn--save" id="addLinkSave">Add Link</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Timer widget -->
+    <div class="widget widget-timer" data-widget-id="timer" style="left:640px;top:40px;">
+      <div class="widget-header">
+        <span class="widget-title">Timer</span>
+      </div>
+      <div class="widget-body timer-body">
+        <div class="timer-display" id="timerDisplay">5:00</div>
+        <div class="timer-controls">
+          <button class="timer-btn timer-adj" id="timerMinus" title="−30s">
+            <svg width="16" height="16" viewBox="0 0 16 16"><line x1="4" y1="8" x2="12" y2="8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </button>
+          <button class="timer-btn timer-play" id="timerPlay" title="Start">
+            <svg class="icon-play" width="18" height="18" viewBox="0 0 18 18"><polygon points="5,3 15,9 5,15" fill="currentColor"/></svg>
+            <svg class="icon-pause" width="18" height="18" viewBox="0 0 18 18"><rect x="4" y="3" width="3.5" height="12" rx="1" fill="currentColor"/><rect x="10.5" y="3" width="3.5" height="12" rx="1" fill="currentColor"/></svg>
+          </button>
+          <button class="timer-btn timer-adj" id="timerPlus" title="+30s">
+            <svg width="16" height="16" viewBox="0 0 16 16"><line x1="4" y1="8" x2="12" y2="8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="4" x2="8" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <div class="timer-description" id="timerDescWidget"></div>
+        <div class="timer-secondary">
+          <button class="timer-btn-sm" id="timerSettings" title="Settings">
+            <svg width="14" height="14" viewBox="0 0 14 14"><path d="M5.7 1h2.6l.35 1.8a4.5 4.5 0 0 1 1.1.63l1.75-.56.13.22 1.17 2.02-1.4 1.24a4.6 4.6 0 0 1 0 1.3l1.4 1.24-1.3 2.24-1.75-.56a4.5 4.5 0 0 1-1.1.63L8.3 13H5.7l-.35-1.8a4.5 4.5 0 0 1-1.1-.63l-1.75.56L1.2 8.89l1.4-1.24a4.6 4.6 0 0 1 0-1.3L1.2 5.11l1.3-2.24 1.75.56a4.5 4.5 0 0 1 1.1-.63L5.7 1z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><circle cx="7" cy="7" r="1.8" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
+          </button>
+          <button class="timer-btn-sm" id="timerReset" title="Reset">
+            <svg width="14" height="14" viewBox="0 0 14 14"><path d="M2.5 2.5v3.5h3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.8 6C3.5 3.8 5.6 2.2 8 2.2c2.8 0 5 2.2 5 5s-2.2 5-5 5c-1.8 0-3.3-.9-4.2-2.3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </button>
+          <button class="timer-btn-sm" id="timerFullscreen" title="Fullscreen">
+            <svg width="14" height="14" viewBox="0 0 14 14"><path d="M2 5V2h3M9 2h3v3M12 9v3h-3M5 12H2V9" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fact of the Day widget -->
+    <div class="widget widget-fact" data-widget-id="fact" style="left:640px;top:320px;">
+      <div class="widget-header">
+        <span class="widget-title">Fact of the Day</span>
+        <span class="fact-category" id="factCategory"></span>
+      </div>
+      <div class="widget-body">
+        <p class="fact-text" id="factText"></p>
+        <a class="fact-learn-more" id="factLearnMore" target="_blank" rel="noopener">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7l6 6 6-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" transform="rotate(-90 7 7)"/></svg>
+          Learn more
+        </a>
+      </div>
+    </div>
+
+    <!-- Noise Meter widget -->
+    <div class="widget widget-noise" data-widget-id="noise" style="left:380px;top:40px;">
+      <div class="widget-header">
+        <span class="widget-title">Noise Meter</span>
+      </div>
+      <div class="widget-body noise-body">
+        <canvas class="noise-canvas" id="noiseCanvas"></canvas>
+        <div class="noise-level" id="noiseLevel">--</div>
+        <div class="noise-label" id="noiseLabel">Click to start</div>
+        <div class="noise-controls">
+          <button class="timer-btn noise-toggle" id="noiseToggle" title="Start listening">
+            <svg class="icon-mic" width="18" height="18" viewBox="0 0 18 18"><path d="M9 1a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" fill="currentColor"/><path d="M4 8v1a5 5 0 0 0 10 0V8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="9" y1="14" x2="9" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <svg class="icon-mic-off" width="18" height="18" viewBox="0 0 18 18"><path d="M9 1a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" fill="currentColor" opacity="0.3"/><path d="M4 8v1a5 5 0 0 0 10 0V8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="9" y1="14" x2="9" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="3" y1="3" x2="15" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </button>
+          <button class="timer-btn-sm" id="noiseFullscreen" title="Fullscreen">
+            <svg width="14" height="14" viewBox="0 0 14 14"><path d="M2 5V2h3M9 2h3v3M12 9v3h-3M5 12H2V9" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Name Picker widget -->
+    <div class="widget widget-namepicker" data-widget-id="namepicker" style="left:60px;top:480px;">
+      <div class="widget-header">
+        <span class="widget-title">Name Picker</span>
+      </div>
+      <div class="widget-body namepicker-body">
+        <div class="namepicker-group-select">
+          <select class="namepicker-select" id="namePickerGroup">
+            <option value="" disabled selected>Select a group</option>
+          </select>
+          <button class="namepicker-btn-icon" id="namePickerManage" title="Manage groups">
+            <svg width="14" height="14" viewBox="0 0 14 14"><path d="M5.7 1h2.6l.35 1.8a4.5 4.5 0 0 1 1.1.63l1.75-.56.13.22 1.17 2.02-1.4 1.24a4.6 4.6 0 0 1 0 1.3l1.4 1.24-1.3 2.24-1.75-.56a4.5 4.5 0 0 1-1.1.63L8.3 13H5.7l-.35-1.8a4.5 4.5 0 0 1-1.1-.63l-1.75.56L1.2 8.89l1.4-1.24a4.6 4.6 0 0 1 0-1.3L1.2 5.11l1.3-2.24 1.75.56a4.5 4.5 0 0 1 1.1-.63L5.7 1z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><circle cx="7" cy="7" r="1.8" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
+          </button>
+        </div>
+        <div class="namepicker-slot-wrapper">
+          <div class="namepicker-slot-mask">
+            <div class="namepicker-slot-reel" id="namePickerReel">
+              <div class="namepicker-slot-item namepicker-slot-placeholder">--</div>
+            </div>
+          </div>
+        </div>
+        <button class="namepicker-spin-btn" id="namePickerSpin" disabled>Pick a Name!</button>
+      </div>
+    </div>
+
+    <!-- Name Picker manage modal -->
+    <div class="modal-overlay" id="namePickerModal">
+      <div class="modal namepicker-modal">
+        <div class="modal-header">
+          <h3 class="modal-title">Manage Groups</h3>
+          <button class="modal-close" id="namePickerModalClose">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="namepicker-add-group">
+            <input type="text" class="modal-input" id="namePickerNewGroup" placeholder="New group name" />
+            <button class="btn btn-add" id="namePickerAddGroup">Add</button>
+          </div>
+          <div class="namepicker-groups-list" id="namePickerGroupsList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Google Search widget -->
+    <div class="widget widget-search" data-widget-id="search" style="left:380px;top:480px;">
+      <div class="widget-header">
+        <span class="widget-title">Google Search</span>
+      </div>
+      <div class="widget-body search-body">
+        <div class="search-bar">
+          <svg class="search-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="11" y1="11" x2="14" y2="14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <input type="text" class="search-input" id="googleSearchInput" placeholder="Search Google…" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Sticky note widget -->
+    <div class="widget widget-note" data-widget-id="note" style="left:380px;top:240px;">
+      <div class="widget-header">
+        <span class="widget-title">Sticky Notes</span>
+      </div>
+      <div class="widget-body" id="notesList"></div>
+    </div>
+
+    <!-- Ambience widget -->
+    <div class="widget widget-ambience" data-widget-id="ambience" style="left:60px;top:40px;">
+      <div class="widget-header">
+        <span class="widget-title">Ambience</span>
+      </div>
+      <div class="widget-body ambience-body">
+        <div class="ambience-scenes" id="ambienceScenes">
+          <button class="ambience-scene active" data-scene="workshop">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.2"/><line x1="7" y1="4" x2="7" y2="7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="7" y1="7" x2="9.5" y2="8.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+            Workshop
+          </button>
+          <button class="ambience-scene" data-scene="cafe">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 3h8v5a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V3z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M10 5h1.5a1.5 1.5 0 0 1 0 3H10" stroke="currentColor" stroke-width="1.2"/><line x1="4" y1="12" x2="8" y2="12" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+            Caf&eacute;
+          </button>
+          <button class="ambience-scene" data-scene="nature">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2C4.5 2 2 5 2 8h10c0-3-2.5-6-5-6z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><line x1="7" y1="8" x2="7" y2="12" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+            Nature
+          </button>
+        </div>
+        <div class="ambience-channels" id="ambienceChannels"></div>
+        <div class="ambience-master">
+          <button class="ambience-master-toggle" id="ambienceMasterToggle" title="Play all">
+            <svg class="icon-play" width="16" height="16" viewBox="0 0 18 18"><polygon points="5,3 15,9 5,15" fill="currentColor"/></svg>
+            <svg class="icon-pause" width="16" height="16" viewBox="0 0 18 18"><rect x="4" y="3" width="3.5" height="12" rx="1" fill="currentColor"/><rect x="10.5" y="3" width="3.5" height="12" rx="1" fill="currentColor"/></svg>
+          </button>
+          <input type="range" class="ambience-master-slider" id="ambienceMasterVol" min="0" max="100" value="70" title="Master volume" />
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Timer fullscreen overlay -->
+  <div class="timer-fullscreen" id="timerFullscreenOverlay">
+    <div class="timer-fs-content">
+      <div class="timer-fs-description" id="timerDescFs"></div>
+      <div class="timer-fs-display" id="timerFsDisplay">5:00</div>
+      <div class="timer-fs-controls">
+        <button class="timer-fs-btn" id="timerFsMinus" title="−30s">
+          <svg width="22" height="22" viewBox="0 0 16 16"><line x1="4" y1="8" x2="12" y2="8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+        <button class="timer-fs-btn timer-fs-play" id="timerFsPlay" title="Start">
+          <svg class="icon-play" width="28" height="28" viewBox="0 0 18 18"><polygon points="5,3 15,9 5,15" fill="currentColor"/></svg>
+          <svg class="icon-pause" width="28" height="28" viewBox="0 0 18 18"><rect x="4" y="3" width="3.5" height="12" rx="1" fill="currentColor"/><rect x="10.5" y="3" width="3.5" height="12" rx="1" fill="currentColor"/></svg>
+        </button>
+        <button class="timer-fs-btn" id="timerFsPlus" title="+30s">
+          <svg width="22" height="22" viewBox="0 0 16 16"><line x1="4" y1="8" x2="12" y2="8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="4" x2="8" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <div class="timer-fs-secondary">
+        <button class="timer-fs-btn-sm" id="timerFsSettings" title="Settings">
+          <svg width="18" height="18" viewBox="0 0 14 14"><path d="M5.7 1h2.6l.35 1.8a4.5 4.5 0 0 1 1.1.63l1.75-.56.13.22 1.17 2.02-1.4 1.24a4.6 4.6 0 0 1 0 1.3l1.4 1.24-1.3 2.24-1.75-.56a4.5 4.5 0 0 1-1.1.63L8.3 13H5.7l-.35-1.8a4.5 4.5 0 0 1-1.1-.63l-1.75.56L1.2 8.89l1.4-1.24a4.6 4.6 0 0 1 0-1.3L1.2 5.11l1.3-2.24 1.75.56a4.5 4.5 0 0 1 1.1-.63L5.7 1z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><circle cx="7" cy="7" r="1.8" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
+        </button>
+        <button class="timer-fs-btn-sm" id="timerFsReset" title="Reset">
+          <svg width="18" height="18" viewBox="0 0 14 14"><path d="M2.5 2.5v3.5h3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.8 6C3.5 3.8 5.6 2.2 8 2.2c2.8 0 5 2.2 5 5s-2.2 5-5 5c-1.8 0-3.3-.9-4.2-2.3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+        <button class="timer-fs-btn-sm" id="timerFsExit" title="Exit fullscreen">
+          <svg width="18" height="18" viewBox="0 0 14 14"><path d="M5 2v3H2M9 2v3h3M12 9H9v3M2 9h3v3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="timer-fs-progress" id="timerFsProgress"></div>
+  </div>
+
+  <!-- Noise Meter fullscreen overlay -->
+  <div class="noise-fullscreen" id="noiseFullscreenOverlay">
+    <div class="noise-fs-content">
+      <canvas class="noise-fs-canvas" id="noiseFsCanvas"></canvas>
+      <div class="noise-fs-level" id="noiseFsLevel">--</div>
+      <div class="noise-fs-label" id="noiseFsLabel">Click to start</div>
+      <div class="noise-fs-controls">
+        <button class="timer-fs-btn noise-fs-toggle" id="noiseFsToggle" title="Start listening">
+          <svg class="icon-mic" width="24" height="24" viewBox="0 0 18 18"><path d="M9 1a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" fill="currentColor"/><path d="M4 8v1a5 5 0 0 0 10 0V8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="9" y1="14" x2="9" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <svg class="icon-mic-off" width="24" height="24" viewBox="0 0 18 18"><path d="M9 1a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" fill="currentColor" opacity="0.3"/><path d="M4 8v1a5 5 0 0 0 10 0V8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="9" y1="14" x2="9" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="3" y1="3" x2="15" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+        <button class="timer-fs-btn-sm" id="noiseFsExit" title="Exit fullscreen">
+          <svg width="18" height="18" viewBox="0 0 14 14"><path d="M5 2v3H2M9 2v3h3M12 9H9v3M2 9h3v3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Timer time-input popover -->
+  <div class="timer-input-popover" id="timerInputPopover">
+    <div class="timer-input-fields">
+      <input type="text" class="timer-input-num" id="timerInputMin" maxlength="3" placeholder="0" aria-label="Minutes" />
+      <span class="timer-input-sep">:</span>
+      <input type="text" class="timer-input-num" id="timerInputSec" maxlength="2" placeholder="00" aria-label="Seconds" />
+    </div>
+    <button class="timer-input-set" id="timerInputSet">Set</button>
+  </div>
+
+  <!-- Timer settings modal -->
+  <div class="modal-overlay" id="timerSettingsModal">
+    <div class="modal timer-settings-modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Timer Settings</h3>
+        <button class="modal-close" id="timerSettingsClose">&times;</button>
+      </div>
+      <div class="modal-body">
+
+        <!-- When Timer Ends -->
+        <div class="ts-section">
+          <div class="ts-section-title">When timer ends</div>
+
+          <label class="ts-row">
+            <span class="ts-label">Play a sound</span>
+            <select class="ts-select" id="tsSound">
+              <option value="none">None</option>
+              <option value="chime" selected>Chime</option>
+              <option value="bell">School Bell</option>
+              <option value="buzzer">Buzzer</option>
+            </select>
+          </label>
+
+          <label class="ts-row">
+            <span class="ts-label">Flash background red</span>
+            <button class="ts-toggle" id="tsFlash" data-on="true" role="switch" aria-checked="true">
+              <span class="ts-toggle-knob"></span>
+            </button>
+          </label>
+        </div>
+
+        <!-- After Timer Ends -->
+        <div class="ts-section">
+          <div class="ts-section-title">After timer ends</div>
+
+          <label class="ts-row">
+            <span class="ts-label">Auto-restart timer</span>
+            <button class="ts-toggle" id="tsAutoRestart" data-on="false" role="switch" aria-checked="false">
+              <span class="ts-toggle-knob"></span>
+            </button>
+          </label>
+        </div>
+
+        <!-- Appearance -->
+        <div class="ts-section">
+          <div class="ts-section-title">Appearance</div>
+
+          <label class="ts-row">
+            <span class="ts-label">Show timer description</span>
+            <button class="ts-toggle" id="tsShowDesc" data-on="false" role="switch" aria-checked="false">
+              <span class="ts-toggle-knob"></span>
+            </button>
+          </label>
+
+          <div class="ts-row ts-desc-row" id="tsDescRow" style="display:none;">
+            <input type="text" class="ts-input" id="tsDescInput" placeholder="e.g. Silent reading time" maxlength="60" />
+          </div>
+        </div>
+
+        <!-- Miscellaneous -->
+        <div class="ts-section">
+          <div class="ts-section-title">Miscellaneous</div>
+
+          <label class="ts-row">
+            <span class="ts-label">Keep screen awake</span>
+            <button class="ts-toggle" id="tsWakeLock" data-on="false" role="switch" aria-checked="false">
+              <span class="ts-toggle-knob"></span>
+            </button>
+          </label>
+          <p class="ts-hint">Prevents sleep, dimming, or screen lock while timer is running.</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Notes modal -->
+  <div class="modal-overlay" id="notesModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Sticky Notes</h3>
+        <button class="modal-close" id="modalClose">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="note-input-row">
+          <input type="text" class="note-input" id="noteInput" placeholder="Write a new note…" />
+          <button class="btn btn-add" id="noteAddBtn">Add</button>
+        </div>
+        <ul class="notes-list" id="modalNotesList"></ul>
+        <p class="notes-empty" id="notesEmpty">No notes yet. Add one above!</p>
+        <button class="archive-toggle" id="archiveToggle">
+          <span class="arrow">&#9654;</span>
+          Completed
+          <span class="archive-count" id="archiveCount"></span>
+        </button>
+        <ul class="archive-list" id="archiveList"></ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Widgets modal -->
+  <div class="modal-overlay" id="editWidgetsModal">
+    <div class="modal edit-widgets-modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Edit Widgets</h3>
+        <button class="modal-close" id="editWidgetsModalClose" type="button">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="ts-hint edit-widgets-hint">Turn widgets on or off. Your layout and settings are kept when a widget is hidden.</p>
+        <div class="edit-widgets-list" id="widgetVisibilityList"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

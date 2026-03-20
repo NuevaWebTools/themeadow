@@ -336,7 +336,7 @@
   function initNotes() {
     if (localStorage.getItem(NOTES_KEY) === null) {
       saveNotes([
-        { id: Date.now(), text: 'Parent-teacher conferences next Thursday. Bring sign-up sheets!' }
+        { id: Date.now(), text: 'Print out worksheets for Spanish II activity' }
       ]);
     }
   }

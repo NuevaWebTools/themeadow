@@ -613,12 +613,96 @@ body::before {
   transform: scale(1);
 }
 
+/* — Fullscreen noise scene — */
+.noise-fs-scene {
+  position: relative;
+  width: clamp(300px, 60vw, 700px);
+  height: clamp(280px, 45vw, 550px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .noise-fs-horse {
-  width: clamp(250px, 45vw, 550px);
-  height: clamp(250px, 45vw, 550px);
+  position: relative;
+  z-index: 2;
+  width: clamp(200px, 35vw, 420px);
+  height: clamp(200px, 35vw, 420px);
   object-fit: contain;
   image-rendering: pixelated;
   transition: opacity 0.3s;
+}
+
+.noise-fs-grass {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: clamp(280px, 50vw, 600px);
+  z-index: 1;
+  object-fit: contain;
+  image-rendering: pixelated;
+  opacity: 1;
+  transition: opacity 2s ease, transform 2s ease;
+}
+
+.noise-fs-fence {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: clamp(280px, 55vw, 650px);
+  z-index: 0;
+  object-fit: contain;
+  image-rendering: pixelated;
+  opacity: 1;
+  transition: opacity 2s ease, transform 2s ease;
+}
+
+.noise-fs-chicken {
+  position: absolute;
+  top: 18%;
+  left: 15%;
+  width: clamp(60px, 9vw, 110px);
+  z-index: 1;
+  object-fit: contain;
+  image-rendering: pixelated;
+  opacity: 1;
+  transition: opacity 2s ease, transform 2s ease;
+}
+
+.noise-fs-hay {
+  position: absolute;
+  bottom: 25%;
+  right: -5%;
+  width: clamp(150px, 22vw, 280px);
+  z-index: 3;
+  object-fit: contain;
+  image-rendering: pixelated;
+  opacity: 1;
+  transition: opacity 2s ease, transform 2s ease;
+}
+
+/* Scenery fades out individually via JS classes */
+.noise-fs-scene .noise-fs-chicken.hidden {
+  opacity: 0;
+  transform: translateX(-30px) scale(0.8);
+  pointer-events: none;
+}
+.noise-fs-scene .noise-fs-hay.hidden {
+  opacity: 0;
+  transform: translateX(30px) scale(0.8);
+  pointer-events: none;
+}
+.noise-fs-scene .noise-fs-fence.hidden {
+  opacity: 0;
+  transform: translateX(-50%) translateY(-20px) scale(0.95);
+  pointer-events: none;
+}
+.noise-fs-scene .noise-fs-grass.hidden {
+  opacity: 0;
+  transform: translateX(-50%) translateY(10px) scale(0.95);
+  pointer-events: none;
 }
 
 .noise-fs-canvas {

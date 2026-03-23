@@ -1510,15 +1510,52 @@
   });
 
   // ── Noise Meter ──
-  const noiseCanvas     = document.getElementById('noiseCanvas');
-  const noiseCtx        = noiseCanvas.getContext('2d');
   const noiseLevelEl    = document.getElementById('noiseLevel');
   const noiseLabelEl    = document.getElementById('noiseLabel');
   const noiseToggleBtn  = document.getElementById('noiseToggle');
   const noiseFsBtn      = document.getElementById('noiseFullscreen');
   const noiseFsOverlay  = document.getElementById('noiseFullscreenOverlay');
-  const noiseFsCanvas   = document.getElementById('noiseFsCanvas');
-  const noiseFsCtx      = noiseFsCanvas.getContext('2d');
+  const noiseHorseEl    = document.getElementById('noiseHorse');
+  const noiseFsHorseEl  = document.getElementById('noiseFsHorse');
+
+  // Horse states mapped to noise thresholds (0-100)
+  const horseStates = [
+    { max: 7,   src: 'assets/horsesleep.png' },
+    { max: 14,  src: 'assets/horselightsleep.png' },
+    { max: 21,  src: 'assets/horsewakingup.png' },
+    { max: 28,  src: 'assets/horsedisturbed.png' },
+    { max: 35,  src: 'assets/horsegettingup.png' },
+    { max: 42,  src: 'assets/horsestandinggroggy.png' },
+    { max: 49,  src: 'assets/horsestandingannoyed.png' },
+    { max: 57,  src: 'assets/horsestomping.png' },
+    { max: 100, src: 'assets/horsefedup.png' },
+  ];
+  // Preload horse images
+  horseStates.forEach(s => { const img = new Image(); img.src = s.src; });
+  let currentHorseIndex = 0;
+  const HYSTERESIS = 5; // must drop this many points below threshold to go back down
+
+  function updateHorseState(vol) {
+    let targetIndex = horseStates.findIndex(s => vol <= s.max);
+    if (targetIndex === -1) targetIndex = horseStates.length - 1;
+
+    if (targetIndex > currentHorseIndex) {
+      // Going up — switch immediately
+      currentHorseIndex = targetIndex;
+    } else if (targetIndex < currentHorseIndex) {
+      // Going down — only drop if vol is below current threshold minus hysteresis
+      const currentThreshold = currentHorseIndex > 0 ? horseStates[currentHorseIndex - 1].max : 0;
+      if (vol <= currentThreshold - HYSTERESIS) {
+        currentHorseIndex = targetIndex;
+      }
+    }
+
+    const src = horseStates[currentHorseIndex].src;
+    if (noiseHorseEl.src !== src && !noiseHorseEl.src.endsWith(src)) {
+      noiseHorseEl.src = src;
+      noiseFsHorseEl.src = src;
+    }
+  }
   const noiseFsLevelEl  = document.getElementById('noiseFsLevel');
   const noiseFsLabelEl  = document.getElementById('noiseFsLabel');
   const noiseFsToggle   = document.getElementById('noiseFsToggle');
@@ -1529,7 +1566,7 @@
   let noiseStream   = null;
   let noiseRaf      = null;
   let noiseListening = false;
-  let smoothedBars  = [];
+  let smoothedVol = 0;
 
   function getLevelClass(vol) {
     if (vol < 30) return 'level-quiet';
@@ -1542,60 +1579,6 @@
     return 'Loud';
   }
 
-  function getBarColor(vol, ctx, barH, y) {
-    if (vol < 30) return '#4caf50';
-    if (vol < 65) {
-      const grad = ctx.createLinearGradient(0, y + barH, 0, y);
-      grad.addColorStop(0, '#4caf50');
-      grad.addColorStop(1, '#ff9800');
-      return grad;
-    }
-    const grad = ctx.createLinearGradient(0, y + barH, 0, y);
-    grad.addColorStop(0, '#ff9800');
-    grad.addColorStop(1, '#e53935');
-    return grad;
-  }
-
-  function drawNoiseBars(ctx, canvas, dataArray, bufferLength) {
-    const dpr = window.devicePixelRatio || 1;
-    const w = canvas.clientWidth;
-    const h = canvas.clientHeight;
-    if (canvas.width !== w * dpr || canvas.height !== h * dpr) {
-      canvas.width = w * dpr;
-      canvas.height = h * dpr;
-      ctx.scale(dpr, dpr);
-    }
-    ctx.clearRect(0, 0, w, h);
-
-    const barCount = Math.min(bufferLength, 48);
-    const gap = 3;
-    const barW = Math.max(2, (w - gap * (barCount - 1)) / barCount);
-    const decay = 0.85;
-
-    if (smoothedBars.length !== barCount) {
-      smoothedBars = new Array(barCount).fill(0);
-    }
-
-    // Compute overall volume for color
-    let sum = 0;
-    for (let i = 0; i < bufferLength; i++) sum += dataArray[i];
-    const avgVol = (sum / bufferLength) * (100 / 255);
-
-    for (let i = 0; i < barCount; i++) {
-      const dataIndex = Math.floor(i * bufferLength / barCount);
-      const target = (dataArray[dataIndex] / 255) * h;
-      smoothedBars[i] = Math.max(target, smoothedBars[i] * decay);
-      const barH = Math.max(2, smoothedBars[i]);
-      const x = i * (barW + gap);
-      const y = h - barH;
-
-      ctx.fillStyle = getBarColor(avgVol, ctx, barH, y);
-      ctx.beginPath();
-      ctx.roundRect(x, y, barW, barH, 3);
-      ctx.fill();
-    }
-  }
-
   function noiseLoop() {
     if (!noiseListening) return;
     const bufferLength = noiseAnalyser.frequencyBinCount;
@@ -1605,7 +1588,13 @@
     // Calculate volume (RMS-ish from frequency data)
     let sum = 0;
     for (let i = 0; i < bufferLength; i++) sum += dataArray[i];
-    const vol = Math.round((sum / bufferLength) * (100 / 255));
+    const rawVol = (sum / bufferLength) * (100 / 255);
+
+    // Smooth: rise faster, fall slower
+    const rise = 0.1, fall = 0.03;
+    const alpha = rawVol > smoothedVol ? rise : fall;
+    smoothedVol += (rawVol - smoothedVol) * alpha;
+    const vol = Math.round(smoothedVol);
 
     // Update level displays
     const levelClass = getLevelClass(vol);
@@ -1619,11 +1608,8 @@
     noiseFsLevelEl.className = 'noise-fs-level ' + levelClass;
     noiseFsLabelEl.textContent = label;
 
-    // Draw bars on both canvases
-    drawNoiseBars(noiseCtx, noiseCanvas, dataArray, bufferLength);
-    if (noiseFsOverlay.classList.contains('open')) {
-      drawNoiseBars(noiseFsCtx, noiseFsCanvas, dataArray, bufferLength);
-    }
+    // Update horse character
+    updateHorseState(vol);
 
     noiseRaf = requestAnimationFrame(noiseLoop);
   }
@@ -1641,7 +1627,6 @@
       noiseListening = true;
       noiseToggleBtn.classList.add('listening');
       noiseFsToggle.classList.add('listening');
-      smoothedBars = [];
       noiseLoop();
     } catch (err) {
       noiseLabelEl.textContent = 'Mic denied';
@@ -1668,12 +1653,10 @@
     noiseFsLevelEl.textContent = '--';
     noiseFsLevelEl.className = 'noise-fs-level';
     noiseFsLabelEl.textContent = 'Click to start';
-    smoothedBars = [];
-
-    // Clear canvases
-    const dpr = window.devicePixelRatio || 1;
-    noiseCtx.clearRect(0, 0, noiseCanvas.clientWidth * dpr, noiseCanvas.clientHeight * dpr);
-    noiseFsCtx.clearRect(0, 0, noiseFsCanvas.clientWidth * dpr, noiseFsCanvas.clientHeight * dpr);
+    smoothedVol = 0;
+    currentHorseIndex = 0;
+    noiseHorseEl.src = horseStates[0].src;
+    noiseFsHorseEl.src = horseStates[0].src;
   }
 
   function toggleNoise() {

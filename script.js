@@ -1977,10 +1977,10 @@
       { name: 'Rain Outside',     url: 'https://cdn.freesound.org/previews/398/398741_5923045-hq.mp3' },
     ],
     nature: [
-      { name: 'Forest Birds',     url: 'https://cdn.freesound.org/previews/223/223449_4034520-hq.mp3' },
-      { name: 'Flowing Stream',   url: 'https://cdn.freesound.org/previews/433/433589_5618682-hq.mp3' },
-      { name: 'Wind in Trees',    url: 'https://cdn.freesound.org/previews/335/335889_2792951-hq.mp3' },
-      { name: 'Crickets',         url: 'https://cdn.freesound.org/previews/221/221164_1645319-hq.mp3' },
+      { name: 'Forest Birds',     url: 'https://cdn.freesound.org/previews/427/427517_3662372-hq.mp3' },
+      { name: 'Flowing Stream',   url: 'https://cdn.freesound.org/previews/165/165877_3026251-hq.mp3' },
+      { name: 'Wind in Trees',    url: 'https://cdn.freesound.org/previews/81/81188_649468-hq.mp3' },
+      { name: 'Crickets',         url: 'https://cdn.freesound.org/previews/53/53380_407362-hq.mp3' },
       { name: 'Forest Rain',      url: 'https://cdn.freesound.org/previews/34/34073_28216-hq.mp3' },
     ],
   };

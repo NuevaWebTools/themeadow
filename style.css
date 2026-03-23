@@ -2241,7 +2241,7 @@ body::before {
 .ambience-label {
   font-size: 0.78rem;
   color: var(--text);
-  width: 80px;
+  width: 110px;
   flex-shrink: 0;
   white-space: nowrap;
   overflow: hidden;

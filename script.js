@@ -1530,26 +1530,37 @@
     { max: 57,  src: 'assets/horsestomping.png' },
     { max: 100, src: 'assets/horsefedup.png' },
   ];
-  // Preload horse images
+  // Preload horse images + scenery
   horseStates.forEach(s => { const img = new Image(); img.src = s.src; });
+  ['assets/fence.png', 'assets/grass.png', 'assets/hay.png', 'assets/chicken.png'].forEach(src => { const img = new Image(); img.src = src; });
   let currentHorseIndex = 0;
-  const HYSTERESIS = 5; // must drop this many points below threshold to go back down
+  const HYSTERESIS = 10; // must drop this many points below threshold to go back down
+  let lastHorseChangeTime = 0;
+  const HORSE_COOLDOWN = 300; // minimum ms between frame changes
 
   function updateHorseState(vol) {
     let targetIndex = horseStates.findIndex(s => vol <= s.max);
     if (targetIndex === -1) targetIndex = horseStates.length - 1;
 
+    if (targetIndex === currentHorseIndex) return;
+
+    const now = Date.now();
+    if (now - lastHorseChangeTime < HORSE_COOLDOWN) return;
+
     if (targetIndex > currentHorseIndex) {
-      // Going up — switch immediately
-      currentHorseIndex = targetIndex;
-    } else if (targetIndex < currentHorseIndex) {
+      // Going up — move one step at a time for smoother transitions
+      currentHorseIndex = Math.min(targetIndex, currentHorseIndex + 1);
+    } else {
       // Going down — only drop if vol is below current threshold minus hysteresis
       const currentThreshold = currentHorseIndex > 0 ? horseStates[currentHorseIndex - 1].max : 0;
       if (vol <= currentThreshold - HYSTERESIS) {
-        currentHorseIndex = targetIndex;
+        currentHorseIndex = Math.max(targetIndex, currentHorseIndex - 1);
+      } else {
+        return;
       }
     }
 
+    lastHorseChangeTime = now;
     const src = horseStates[currentHorseIndex].src;
     if (noiseHorseEl.src !== src && !noiseHorseEl.src.endsWith(src)) {
       noiseHorseEl.src = src;
@@ -1581,17 +1592,19 @@
 
   function noiseLoop() {
     if (!noiseListening) return;
-    const bufferLength = noiseAnalyser.frequencyBinCount;
-    const dataArray = new Uint8Array(bufferLength);
-    noiseAnalyser.getByteFrequencyData(dataArray);
+    const bufferLength = noiseAnalyser.fftSize;
+    const dataArray = new Float32Array(bufferLength);
+    noiseAnalyser.getFloatTimeDomainData(dataArray);
 
-    // Calculate volume (RMS-ish from frequency data)
-    let sum = 0;
-    for (let i = 0; i < bufferLength; i++) sum += dataArray[i];
-    const rawVol = (sum / bufferLength) * (100 / 255);
+    // Calculate true RMS volume from time-domain samples
+    let sumSq = 0;
+    for (let i = 0; i < bufferLength; i++) sumSq += dataArray[i] * dataArray[i];
+    const rms = Math.sqrt(sumSq / bufferLength);
+    // Convert to 0-100 scale with amplification for typical mic levels
+    const rawVol = Math.min(100, rms * 700);
 
     // Smooth: rise faster, fall slower
-    const rise = 0.1, fall = 0.03;
+    const rise = 0.08, fall = 0.02;
     const alpha = rawVol > smoothedVol ? rise : fall;
     smoothedVol += (rawVol - smoothedVol) * alpha;
     const vol = Math.round(smoothedVol);
@@ -1610,6 +1623,16 @@
 
     // Update horse character
     updateHorseState(vol);
+
+    // Update fullscreen scene scenery — each element disappears at its own threshold
+    const fsHay     = document.querySelector('.noise-fs-hay');
+    const fsChicken = document.querySelector('.noise-fs-chicken');
+    const fsFence   = document.querySelector('.noise-fs-fence');
+    const fsGrass   = document.querySelector('.noise-fs-grass');
+    if (fsChicken) fsChicken.classList.toggle('hidden', vol >= 10);
+    if (fsHay)     fsHay.classList.toggle('hidden', vol >= 20);
+    if (fsFence)   fsFence.classList.toggle('hidden', vol >= 30);
+    if (fsGrass)   fsGrass.classList.toggle('hidden', vol >= 40);
 
     noiseRaf = requestAnimationFrame(noiseLoop);
   }

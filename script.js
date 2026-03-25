@@ -22,7 +22,7 @@
 
   function defaultWidgetVisibility() {
     const o = {};
-    WIDGET_CATALOG.forEach(({ id }) => { o[id] = true; });
+    WIDGET_CATALOG.forEach(({ id }) => { o[id] = id !== 'noise'; });
     return o;
   }
 

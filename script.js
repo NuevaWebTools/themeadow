@@ -825,7 +825,7 @@
   const timerPlusBtn    = document.getElementById('timerPlus');
   const timerResetBtn   = document.getElementById('timerReset');
   const timerFsBtn      = document.getElementById('timerFullscreen');
-  const timerSettingsBtn = document.getElementById('timerSettings');
+  const timerSettingsBtn = document.getElementById('timerSettings'); // removed from HTML; may be null
   const timerDescWidget = document.getElementById('timerDescWidget');
 
   // ── Elements — fullscreen ──
@@ -1079,7 +1079,7 @@
   timerPlusBtn.addEventListener('click', (e) => { e.stopPropagation(); adjustTimer(1); });
   timerResetBtn.addEventListener('click', (e) => { e.stopPropagation(); resetTimer(); });
   timerFsBtn.addEventListener('click', (e) => { e.stopPropagation(); openTimerFullscreen(); });
-  timerSettingsBtn.addEventListener('click', (e) => { e.stopPropagation(); openTimerSettings(); });
+  if (timerSettingsBtn) timerSettingsBtn.addEventListener('click', (e) => { e.stopPropagation(); openTimerSettings(); });
 
   // Fullscreen buttons
   timerFsPlayBtn.addEventListener('click', toggleTimer);
@@ -1849,7 +1849,7 @@
   });
 
   // Manage modal
-  npManageBtn.addEventListener('click', (e) => {
+  if (npManageBtn) npManageBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     renderNamePickerGroups();
     npModal.classList.add('open');
@@ -2352,8 +2352,38 @@
     }
   });
 
+  // ── Inject settings gear button into every widget (upper-right, hover-only) ──
+  function injectSettingsButtons() {
+    const gearSVG = '<svg width="14" height="14" viewBox="0 0 14 14"><path d="M5.7 1h2.6l.35 1.8a4.5 4.5 0 0 1 1.1.63l1.75-.56.13.22 1.17 2.02-1.4 1.24a4.6 4.6 0 0 1 0 1.3l1.4 1.24-1.3 2.24-1.75-.56a4.5 4.5 0 0 1-1.1.63L8.3 13H5.7l-.35-1.8a4.5 4.5 0 0 1-1.1-.63l-1.75.56L1.2 8.89l1.4-1.24a4.6 4.6 0 0 1 0-1.3L1.2 5.11l1.3-2.24 1.75.56a4.5 4.5 0 0 1 1.1-.63L5.7 1z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><circle cx="7" cy="7" r="1.8" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>';
+    const pencilSVG = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M8.5 2.5l3 3M1.5 9.5l6-6 3 3-6 6H1.5v-3z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+    const widgetButtons = {
+      links:       { icon: gearSVG, title: 'Settings', action: () => document.getElementById('addLinkModal').classList.add('open') },
+      timer:       { icon: gearSVG, title: 'Settings', action: () => document.getElementById('timerSettingsModal').classList.add('open') },
+      namepicker:  { icon: gearSVG, title: 'Manage groups', action: () => { renderNamePickerGroups(); document.getElementById('namePickerModal').classList.add('open'); } },
+      note:        { icon: pencilSVG, title: 'Edit notes', action: () => document.getElementById('notesModal').classList.add('open') },
+    };
+
+    document.querySelectorAll('.widget').forEach(widget => {
+      const id = widget.dataset.widgetId;
+      const config = widgetButtons[id];
+      if (!config) return; // no settings button for this widget
+      const btn = document.createElement('button');
+      btn.className = 'widget-settings-btn';
+      btn.title = config.title;
+      btn.innerHTML = config.icon;
+      btn.addEventListener('pointerdown', (e) => e.stopPropagation());
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        config.action();
+      });
+      widget.appendChild(btn);
+    });
+  }
+
   // ── Init ──
   injectResizeHandles();
+  injectSettingsButtons();
   renderLinks();
   initNotes();
   loadPositions();
